@@ -1,0 +1,40 @@
+esphome:
+  name: exercisebike
+  friendly_name: Exercise Bike Capture
+  platform: ESP32
+  board: esp32dev
+  libraries:
+    - "ESP32 BLE Arduino"  # Add this to include the ESP32 BLE Arduino library
+
+# Add other necessary configurations here
+wifi:
+  ssid: "networkname"
+  password: "password"
+
+# Enable Home Assistant API
+api:
+   reboot_timeout: 0s
+
+ota:
+- platform: esphome
+
+logger:
+  baud_rate: 0 # (UART logging interferes with cse7766)
+  logs:
+    sensor: DEBUG # (Overide any global setting, to VERBOSE will spamming the cse7766 sensors)
+
+external_components:
+  - source: components
+
+sensor:
+  - platform: exercise_sensor
+    speed:
+      name: "Bike Speed"
+      unit_of_measurement: "mph"
+    cadence:
+      name: "Bike Cadence"
+      unit_of_measurement: "rpm"
+    power:
+      name: "Bike Power"
+
+      

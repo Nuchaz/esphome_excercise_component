@@ -17,7 +17,7 @@ CONFIG_SCHEMA = cv.Schema(
         cv.Optional(CONF_SENSOR2): sensor.sensor_schema(unit_of_measurement=UNIT_EMPTY, icon=ICON_EMPTY, accuracy_decimals=1),
         cv.Optional(CONF_SENSOR3): sensor.sensor_schema(unit_of_measurement=UNIT_WATT, icon=ICON_EMPTY, accuracy_decimals=1),
     }
-).extend(cv.polling_component_schema("60s"))
+).extend(cv.polling_component_schema("1s"))
 
 
 async def to_code(config):

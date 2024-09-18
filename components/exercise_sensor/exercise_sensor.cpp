@@ -14,6 +14,10 @@ static BLEUUID charUUID("2ad2");
 static BLERemoteCharacteristic* istic;
 static BLEAdvertisedDevice* btbike;
 
+float myspeed = 0.0f;
+float mycadence = 0.0f;
+float mypower = 0.0f; 
+
 class MyAdvertisedDeviceCallbacks: public BLEAdvertisedDeviceCallbacks 
 {
     void onResult(BLEAdvertisedDevice advertisedDevice) 
@@ -46,11 +50,11 @@ class MyClientCallback : public BLEClientCallbacks
 
 void ExerciseSensor::update() {
     if (this->speed_ != nullptr)
-      this->speed_->publish_state(1.0f);
+      this->speed_->publish_state(myspeed);
     if (this->cadence_ != nullptr)
-      this->cadence_->publish_state(2.0f);
+      this->cadence_->publish_state(mycadence);
     if (this->power_ != nullptr)
-      this->power_->publish_state(3.0f);
+      this->power_->publish_state(mypower);
 }
 
 void ExerciseSensor::dump_config() {
@@ -70,7 +74,9 @@ static void notifyCallback(BLERemoteCharacteristic* pBLERemoteCharacteristic, ui
     uint16_t xpower = (pData[7] << 8) | pData[6];
     uint8_t xheartrate = pData[8];
     float speedo = (xspeed * 0.01 * 0.64419665777);
-
+    myspeed = speedo;
+    mycadence = xcadence;
+    mypower = xpower;
     // need to update the correct variables so the update mode can take it away.
 }
 

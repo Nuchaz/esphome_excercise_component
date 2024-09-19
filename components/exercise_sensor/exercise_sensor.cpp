@@ -89,7 +89,7 @@ static void notifyCallback(BLERemoteCharacteristic* pBLERemoteCharacteristic, ui
     auto current_time = std::chrono::steady_clock::now();
     if (lastTime != std::chrono::steady_clock::time_point()) 
     {
-      std::chrono::duration<float, std::ratio<3600>> time_span = std::chrono::duration_cast<std::chrono::duration<float, std::ratio<3600>>>(current_time - last_update_time_);
+      std::chrono::duration<float, std::ratio<3600>> time_span = std::chrono::duration_cast<std::chrono::duration<float, std::ratio<3600>>>(current_time - lastTime);
       timePassed = time_span.count();
       totalDistance += speedo * timePassed;
     }

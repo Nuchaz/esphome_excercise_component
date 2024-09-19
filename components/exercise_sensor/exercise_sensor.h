@@ -18,6 +18,7 @@ class ExerciseSensor : public sensor::Sensor, public PollingComponent {
     void set_sensor2(sensor::Sensor *cadence) { cadence_ = cadence; }
     void set_sensor3(sensor::Sensor *power) { power_ = power; }
     void set_sensor4(sensor::Sensor *distance) { distance_ = distance; }
+    void set_sensor5(sensor::Sensor *heart) { heart_ = heart; }
 
     void setup() override;
     void loop() override;
@@ -31,6 +32,7 @@ class ExerciseSensor : public sensor::Sensor, public PollingComponent {
     sensor::Sensor *cadence_;
     sensor::Sensor *power_;
     sensor::Sensor *distance_;
+    sensor::Sensor *heart_;
 
   private:
 

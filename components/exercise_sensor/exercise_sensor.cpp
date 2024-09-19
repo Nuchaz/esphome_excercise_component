@@ -18,6 +18,7 @@ static BLEAdvertisedDevice* btbike;
 float myspeed = 0.0f;
 float mycadence = 0.0f;
 float mypower = 0.0f; 
+float myheart = 80.0f;
 float totalDistance = 0.0f;
 
 std::chrono::steady_clock::time_point lastTime;
@@ -62,6 +63,8 @@ void ExerciseSensor::update() {
       this->power_->publish_state(mypower);
     if (this->distance_ != nullptr)
       this->distance_->publish_state(totalDistance);
+    if (this->heart_ != nullptr)
+      this->heart_->publish_state(myheart);
 }
 
 void ExerciseSensor::dump_config() {
@@ -84,6 +87,7 @@ static void notifyCallback(BLERemoteCharacteristic* pBLERemoteCharacteristic, ui
     myspeed = speedo;
     mycadence = xcadence;
     mypower = xpower;
+    myheart = xheartrate;
 
 
     auto current_time = std::chrono::steady_clock::now();

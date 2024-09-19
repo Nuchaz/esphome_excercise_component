@@ -36,5 +36,8 @@ sensor:
       unit_of_measurement: "rpm"
     power:
       name: "Bike Power"
+    distance:
+      name: "Session Distance"
+      unit_of_measurement: "miles"
 
       

@@ -2,10 +2,12 @@
 
 #include "esphome/core/component.h"
 #include "esphome/components/sensor/sensor.h"
+#include "esphome/core/log.h"
 #include <BLEScan.h>
 #include <BLEDevice.h>
 #include <BLEUtils.h>
 #include <BLEAdvertisedDevice.h>
+#include <chrono>
 
 namespace esphome {
 namespace exercise_sensor {
@@ -15,6 +17,7 @@ class ExerciseSensor : public sensor::Sensor, public PollingComponent {
     void set_sensor1(sensor::Sensor *speed) { speed_ = speed; }
     void set_sensor2(sensor::Sensor *cadence) { cadence_ = cadence; }
     void set_sensor3(sensor::Sensor *power) { power_ = power; }
+    void set_sensor4(sensor::Sensor *distance) { distance_ = distance; }
 
     void setup() override;
     void loop() override;
@@ -27,6 +30,7 @@ class ExerciseSensor : public sensor::Sensor, public PollingComponent {
     sensor::Sensor *speed_;
     sensor::Sensor *cadence_;
     sensor::Sensor *power_;
+    sensor::Sensor *distance_;
 
   private:
 

@@ -1,5 +1,6 @@
-#include "esphome/core/log.h"
+
 #include "exercise_sensor.h"
+
 
 namespace esphome {
 namespace exercise_sensor {
@@ -9,14 +10,18 @@ static const char *TAG = "exercise_sensor.sensor";
 static bool connected = false;
 static bool doScan = true;
 static bool doConnect = false;
-static BLEUUID serviceUUID("1826");
-static BLEUUID charUUID("2ad2");
+static BLEUUID serviceUUID("1826"); // service UUID for Bowflex C6 bike
+static BLEUUID charUUID("2ad2"); // characteristic UUID for BowFlex c6 Bike Data
 static BLERemoteCharacteristic* istic;
 static BLEAdvertisedDevice* btbike;
 
 float myspeed = 0.0f;
 float mycadence = 0.0f;
 float mypower = 0.0f; 
+float totalDistance = 0.0f;
+
+std::chrono::steady_clock::time_point lastTime;
+float timePassed = 0.0f;
 
 class MyAdvertisedDeviceCallbacks: public BLEAdvertisedDeviceCallbacks 
 {
@@ -55,6 +60,8 @@ void ExerciseSensor::update() {
       this->cadence_->publish_state(mycadence);
     if (this->power_ != nullptr)
       this->power_->publish_state(mypower);
+    if (this->distance_ != nullptr)
+      this->distance_->publish_state(totalDistance);
 }
 
 void ExerciseSensor::dump_config() {
@@ -77,7 +84,18 @@ static void notifyCallback(BLERemoteCharacteristic* pBLERemoteCharacteristic, ui
     myspeed = speedo;
     mycadence = xcadence;
     mypower = xpower;
-    // need to update the correct variables so the update mode can take it away.
+
+
+    auto current_time = std::chrono::steady_clock::now();
+    if (lastTime != std::chrono::steady_clock::time_point()) 
+    {
+      std::chrono::duration<float, std::ratio<3600>> time_span = std::chrono::duration_cast<std::chrono::duration<float, std::ratio<3600>>>(current_time - last_update_time_);
+      timePassed = time_span.count();
+      totalDistance += speedo * timePassed;
+    }
+    lastTime = current_time;
+    // need to do some math and add up the total distance traveled. I want that tracked. 
+    // i want heard rate tracked too, but maybe I should use another esp32? either that or bring in some switches to enable one or the other. hmmm
 }
 
 void BTScan()
@@ -148,11 +166,11 @@ void ExerciseSensor::setup() {
 
 void ExerciseSensor::loop() {
     if (doConnect) 
-      if (ConnectToBike()) 
-      {
-          //ESP_LOGD("Connected to Bowflex C6.");
-          doConnect = false;
-      } 
+        if (ConnectToBike()) 
+        {
+            //ESP_LOGD("Connected to Bowflex C6.");
+            doConnect = false;
+        } 
       
   if(doScan)
   {

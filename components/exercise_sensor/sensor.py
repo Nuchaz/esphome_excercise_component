@@ -11,6 +11,8 @@ CONF_SENSOR2 = "cadence"
 CONF_SENSOR3 = "power"
 CONF_SENSOR4 = "distance"
 CONF_SENSOR5 = "heart"
+CONF_SENSOR6 = "workout_time"
+CONF_SENSOR7 = "calories"
 
 CONFIG_SCHEMA = cv.Schema(
     {
@@ -20,6 +22,8 @@ CONFIG_SCHEMA = cv.Schema(
         cv.Optional(CONF_SENSOR3): sensor.sensor_schema(unit_of_measurement=UNIT_WATT, icon=ICON_EMPTY, accuracy_decimals=2),
         cv.Optional(CONF_SENSOR4): sensor.sensor_schema(unit_of_measurement=UNIT_EMPTY, icon=ICON_EMPTY, accuracy_decimals=3),
         cv.Optional(CONF_SENSOR5): sensor.sensor_schema(unit_of_measurement=UNIT_EMPTY, icon=ICON_EMPTY, accuracy_decimals=0),
+        cv.Optional(CONF_SENSOR6): sensor.sensor_schema(unit_of_measurement=UNIT_EMPTY, icon=ICON_EMPTY, accuracy_decimals=2),
+        cv.Optional(CONF_SENSOR7): sensor.sensor_schema(unit_of_measurement=UNIT_EMPTY, icon=ICON_EMPTY, accuracy_decimals=0),
     }
 ).extend(cv.polling_component_schema("1s"))
 
@@ -47,3 +51,11 @@ async def to_code(config):
     if sensor_5_config := config.get(CONF_SENSOR5):
         sens = await sensor.new_sensor(sensor_5_config)
         cg.add(var.set_sensor5(sens))
+
+    if sensor_6_config := config.get(CONF_SENSOR6):
+        sens = await sensor.new_sensor(sensor_6_config)
+        cg.add(var.set_sensor6(sens))
+
+    if sensor_7_config := config.get(CONF_SENSOR7):
+        sens = await sensor.new_sensor(sensor_7_config)
+        cg.add(var.set_sensor7(sens))

@@ -19,6 +19,8 @@ class ExerciseSensor : public sensor::Sensor, public PollingComponent {
     void set_sensor3(sensor::Sensor *power) { power_ = power; }
     void set_sensor4(sensor::Sensor *distance) { distance_ = distance; }
     void set_sensor5(sensor::Sensor *heart) { heart_ = heart; }
+    void set_sensor6(sensor::Sensor *workdout_time) { workout_time_ = workdout_time; }
+    void set_sensor7(sensor::Sensor *calories) { calories_ = calories; }
 
     void setup() override;
     void loop() override;
@@ -34,6 +36,8 @@ class ExerciseSensor : public sensor::Sensor, public PollingComponent {
     sensor::Sensor *power_;
     sensor::Sensor *distance_;
     sensor::Sensor *heart_;
+    sensor::Sensor *workout_time_;
+    sensor::Sensor *calories_;
 
   private:
 

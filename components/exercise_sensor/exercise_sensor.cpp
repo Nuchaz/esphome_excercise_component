@@ -20,13 +20,11 @@ float mycadence = 0.0f;
 float mypower = 0.0f; 
 float myheart = 80.0f;
 float totalDistance = 0.0f;
+float totalTime = 0.0f;
 float calories = 0.0f;
 
-extern int user_weight;
-extern int user_age;
-extern int user_sex;
-int weight = 100; 
-int age = 30; 
+int weight = 129; 
+int age = 40; 
 int sex = 0; 
 
 std::chrono::steady_clock::time_point lastTime;
@@ -73,10 +71,25 @@ void ExerciseSensor::update() {
       this->distance_->publish_state(totalDistance);
     if (this->heart_ != nullptr)
       this->heart_->publish_state(myheart);
+    if (this->workout_time_ != nullptr)
+      this->workout_time_->publish_state(totalTime);
+    if (this->calories_ != nullptr)
+      this->calories_->publish_state(calories);
 }
 
 void ExerciseSensor::dump_config() {
     ESP_LOGCONFIG(TAG, "Exercise sensor");
+}
+
+float calculateCalorieIncrement(float powerOutput, float heartRate, float timeIncrement,  bool userSex, int userAge, int userWeight)
+{
+    float output = 0.0f;
+    float calories_power = powerOutput * 3.6 * timeIncrement;
+    float sexFactor = 1.0f;
+    if (userSex == 1)
+        sexFactor = 0.86f;
+    float calories_heart = ((userAge * 0.2017) + (userWeight * 0.09036) + (heartRate * 0.6309) - 55.0969) * sexFactor * (timeIncrement * 60.0f);
+    return (calories_power + calories_heart) / 2.0f;;
 }
 
 static void notifyCallback(BLERemoteCharacteristic* pBLERemoteCharacteristic, uint8_t* pData, size_t length, bool isNotify) 
@@ -104,48 +117,15 @@ static void notifyCallback(BLERemoteCharacteristic* pBLERemoteCharacteristic, ui
       std::chrono::duration<float, std::ratio<3600>> time_span = std::chrono::duration_cast<std::chrono::duration<float, std::ratio<3600>>>(current_time - lastTime);
       timePassed = time_span.count();
       totalDistance += speedo * timePassed;
-      //calories += 
-
-
-
+      totalTime += (timePassed * 60.0f);
+      calories += calculateCalorieIncrement(mypower, myheart, timePassed, sex, age, weight);
     }
     lastTime = current_time;
     // need to do some math and add up the total distance traveled. I want that tracked. 
     // i want heard rate tracked too, but maybe I should use another esp32? either that or bring in some switches to enable one or the other. hmmm
 }
 
-float calculateCalorieIncrement(float powerOutput, float heartRate, float timeIncrement,  bool userSex, int userAge, int userWeight)
-{
-    float output = 0.0f;
 
-    /*
-     calories_power = power_output * 3.6 * time_increment_hours
-
-        # Heart Rate Method
-        gender_factor = 0.86 if self.gender.lower() == 'female' else 1
-        calories_hr = (
-            (self.age * 0.2017)
-            + (self.weight_kg * 0.09036)
-            + (heart_rate * 0.6309)
-            - 55.0969
-        ) * gender_factor * (time_increment_hours * 60)  # Convert hours to minutes
-
-        # Average of both methods
-        calories_increment = (calories_power + calories_hr) / 2
-
-        # Update totals
-        self.total_calories += calories_increment
-        self.total_time_hours += time_increment_hours
-
-        return {
-            "increment_calories": round(calories_increment, 4),
-            "total_calories": round(self.total_calories, 2),
-            "total_time_hours": round(self.total_time_hours, 4)
-        }
-    */
-
-    return output;
-}
 
 void BTScan()
 {
@@ -212,9 +192,9 @@ bool ConnectToBike()
 void ExerciseSensor::setup() 
 {
     BLEDevice::init("");
-    weight = id(user_weight);
-    age = id(user_age);
-    sex = id(user_sex);
+    //weight = id(user_weight);
+    //age = id(user_age);
+    //sex = id(user_sex);
 }
 
 void ExerciseSensor::loop() 

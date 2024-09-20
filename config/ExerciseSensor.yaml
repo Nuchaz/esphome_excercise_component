@@ -42,6 +42,12 @@ sensor:
     heart:
       name: "Heartrate"
       unit_of_measurement: "bpm"
+    workout_time:
+      name: "Workout Time"
+      unit_of_measurement: "minutes"
+    calories:
+      name: "Calories Burned"
+      unit_of_measurement: "K"
 
 globals:
   - id: user_weight

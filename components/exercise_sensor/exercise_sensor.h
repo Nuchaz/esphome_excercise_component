@@ -26,6 +26,7 @@ class ExerciseSensor : public sensor::Sensor, public PollingComponent {
     void dump_config() override;
 
     static void notifyCallback(BLERemoteCharacteristic* pBLERemoteCharacteristic, uint8_t* pData, size_t length, bool isNotify);
+    float calculateCalorieIncrement(float powerOutput, float heartRate, float timeIncrement, bool userSex, int userAge, int userWeight);
 
   protected:
     sensor::Sensor *speed_;

@@ -39,5 +39,20 @@ sensor:
     distance:
       name: "Session Distance"
       unit_of_measurement: "miles"
+    heart:
+      name: "Heartrate"
+      unit_of_measurement: "bpm"
 
-      
+globals:
+  - id: user_weight
+    type: int
+    restore_value: no
+    initial_value: '100' # user weight in KG
+  - id: user_age
+    type: int
+    restore_value: no
+    initial_value: '40' # user age in years
+  - id: user_sex
+    type: int
+    restore_value: no
+    initial_value: '0' # 0 for male, 1 for female.

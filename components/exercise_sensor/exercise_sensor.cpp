@@ -5,7 +5,7 @@
 namespace esphome {
 namespace exercise_sensor {
 
-
+static ExerciseSensor* exerciseSensor = nullptr;
 static const char *TAG = "exercise_sensor.sensor";
 static bool connected = false;
 static bool doScan = true;
@@ -22,10 +22,6 @@ float myheart = 80.0f;
 float totalDistance = 0.0f;
 float totalTime = 0.0f;
 float calories = 0.0f;
-
-int weight = 129; 
-int age = 40; 
-int sex = 0; 
 
 std::chrono::steady_clock::time_point lastTime;
 float timePassed = 0.0f;
@@ -81,15 +77,26 @@ void ExerciseSensor::dump_config() {
     ESP_LOGCONFIG(TAG, "Exercise sensor");
 }
 
-float calculateCalorieIncrement(float powerOutput, float heartRate, float timeIncrement,  bool userSex, int userAge, int userWeight)
+float ExerciseSensor::calculateCalorieIncrement(float powerOutput, float heartRate, float timeIncrement, int uage, int uweight, int usex)
 {
     float output = 0.0f;
-    float calories_power = powerOutput * 3.6 * timeIncrement;
-    float sexFactor = 1.0f;
-    if (userSex == 1)
-        sexFactor = 0.86f;
-    float calories_heart = ((userAge * 0.2017) + (userWeight * 0.09036) + (heartRate * 0.6309) - 55.0969) * sexFactor * (timeIncrement * 60.0f);
-    return (calories_power + calories_heart) / 2.0f;;
+    
+    float sexFactorA = 0.6309f;
+    float sexFactorB = 0.1988f;
+    float sexFactorC = 0.2017f;
+    float sexFactorD = 55.0969f;
+
+    if (usex == 1)
+    {
+        sexFactorA = 0.4472f;
+        sexFactorB = 0.1263f;
+        sexFactorC = 0.074f;
+        sexFactorD = 20.4022f;
+    }
+
+    float calories_heart = timeIncrement * ((sexFactorA * heartRate) + (sexFactorB * uweight) + (sexFactorC * uage) - sexFactorD);
+
+    return calories_heart;
 }
 
 static void notifyCallback(BLERemoteCharacteristic* pBLERemoteCharacteristic, uint8_t* pData, size_t length, bool isNotify) 
@@ -104,7 +111,7 @@ static void notifyCallback(BLERemoteCharacteristic* pBLERemoteCharacteristic, ui
     uint16_t xcadence = (pData[5] << 8) | pData[4];
     uint16_t xpower = (pData[7] << 8) | pData[6];
     uint8_t xheartrate = pData[8];
-    float speedo = (xspeed * 0.01 * 0.64419665777);
+    float speedo = (xspeed * 0.01 * 0.64419665777); // converted to MPH
     myspeed = speedo;
     mycadence = xcadence;
     mypower = xpower;
@@ -114,11 +121,11 @@ static void notifyCallback(BLERemoteCharacteristic* pBLERemoteCharacteristic, ui
     auto current_time = std::chrono::steady_clock::now();
     if (lastTime != std::chrono::steady_clock::time_point()) 
     {
-      std::chrono::duration<float, std::ratio<3600>> time_span = std::chrono::duration_cast<std::chrono::duration<float, std::ratio<3600>>>(current_time - lastTime);
-      timePassed = time_span.count();
+      std::chrono::duration<float, std::ratio<60>> time_span = std::chrono::duration_cast<std::chrono::duration<float, std::ratio<60>>>(current_time - lastTime);
+      timePassed = time_span.count(); // timePassed in minutes
       totalDistance += speedo * timePassed;
-      totalTime += (timePassed * 60.0f);
-      calories += calculateCalorieIncrement(mypower, myheart, timePassed, sex, age, weight);
+      totalTime += timePassed;
+      calories += ExerciseSensor::calculateCalorieIncrement(mypower, myheart, timePassed, exerciseSensor->get_user_age(), exerciseSensor->get_user_weight(), exerciseSensor->get_user_sex());
     }
     lastTime = current_time;
     // need to do some math and add up the total distance traveled. I want that tracked. 
@@ -192,6 +199,7 @@ bool ConnectToBike()
 void ExerciseSensor::setup() 
 {
     BLEDevice::init("");
+    exerciseSensor = this;
     //weight = id(user_weight);
     //age = id(user_age);
     //sex = id(user_sex);

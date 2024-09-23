@@ -21,6 +21,9 @@ class ExerciseSensor : public sensor::Sensor, public PollingComponent {
     void set_sensor5(sensor::Sensor *heart) { heart_ = heart; }
     void set_sensor6(sensor::Sensor *workdout_time) { workout_time_ = workdout_time; }
     void set_sensor7(sensor::Sensor *calories) { calories_ = calories; }
+    void set_age(int user_age) {user_age_ = user_age; }
+    void set_weight(int user_weight) {user_weight_ = user_weight; }
+    void set_sex(int user_sex) {user_sex_ = user_sex; }
 
     void setup() override;
     void loop() override;
@@ -28,7 +31,11 @@ class ExerciseSensor : public sensor::Sensor, public PollingComponent {
     void dump_config() override;
 
     static void notifyCallback(BLERemoteCharacteristic* pBLERemoteCharacteristic, uint8_t* pData, size_t length, bool isNotify);
-    float calculateCalorieIncrement(float powerOutput, float heartRate, float timeIncrement, bool userSex, int userAge, int userWeight);
+    static float calculateCalorieIncrement(float powerOutput, float heartRate, float timeIncrement, int uage, int weight, int usex);
+
+    int get_user_age() const { return user_age_; }
+    int get_user_weight() const { return user_weight_; }
+    int get_user_sex() const { return user_sex_; }
 
   protected:
     sensor::Sensor *speed_;
@@ -38,6 +45,9 @@ class ExerciseSensor : public sensor::Sensor, public PollingComponent {
     sensor::Sensor *heart_;
     sensor::Sensor *workout_time_;
     sensor::Sensor *calories_;
+    int user_age_;
+    int user_weight_;
+    int user_sex_;
 
   private:
 
